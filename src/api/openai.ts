@@ -1,16 +1,5 @@
 import { ModelId } from '../types'
-import { calcCost } from './anthropic'
-
-function parseJson(raw: string): unknown {
-  const stripped = raw.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim()
-  try {
-    return JSON.parse(stripped)
-  } catch {
-    const match = stripped.match(/\{[\s\S]*\}/)
-    if (match) return JSON.parse(match[0])
-    throw new Error('No JSON object found in response')
-  }
-}
+import { calcCost, parseJson } from './anthropic'
 
 export async function callOpenAI(
   system: string,
@@ -26,7 +15,7 @@ export async function callOpenAI(
     },
     body: JSON.stringify({
       model,
-      max_tokens: 900,
+      max_tokens: 1800,
       messages: [
         { role: 'system', content: system },
         { role: 'user', content: user },

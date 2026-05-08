@@ -22,14 +22,20 @@ export interface ApiResult {
   cost: number
 }
 
-function parseJson(raw: string): unknown {
+export function parseJson(raw: string): unknown {
   const stripped = raw.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim()
   try {
     return JSON.parse(stripped)
   } catch {
     const match = stripped.match(/\{[\s\S]*\}/)
-    if (match) return JSON.parse(match[0])
-    throw new Error('No JSON object found in response')
+    if (match) {
+      try {
+        return JSON.parse(match[0])
+      } catch {
+        // fall through to error
+      }
+    }
+    throw new Error(`No JSON object found in response. Raw (first 300 chars): ${raw.slice(0, 300)}`)
   }
 }
 
@@ -39,7 +45,7 @@ export async function callAnthropic(
   model: ModelId,
   apiKey: string,
 ): Promise<{ parsed: unknown; cost: number }> {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const res = await fetch('/anthropic/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -48,7 +54,7 @@ export async function callAnthropic(
     },
     body: JSON.stringify({
       model,
-      max_tokens: 900,
+      max_tokens: 1800,
       system,
       messages: [{ role: 'user', content: user }],
     }),
