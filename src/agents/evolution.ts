@@ -82,10 +82,14 @@ export async function runGeneration(
     cb.onRoundStart(round, cb.t.phaseGenerating)
     cb.onLog(cb.t.logGenerating(gen, round))
 
+    const genUser = config.lang === 'es'
+      ? `Genera un concepto filosófico para la ronda ${round} de la generación ${gen}.`
+      : `Generate a philosophical concept for round ${round} of generation ${gen}.`
+
     const genResult = await call(
       config.agentA.provider,
       genSys(worldModelA, gen, config.lang),
-      `Generate a philosophical concept for round ${round} of generation ${gen}.`,
+      genUser,
       config.agentA.model,
       config.agentA.apiKey,
     )
@@ -100,10 +104,14 @@ export async function runGeneration(
     cb.onRoundStart(round, cb.t.phaseCritiquing)
     cb.onLog(cb.t.logCritiquing(gen, round, concept))
 
+    const critUser = config.lang === 'es'
+      ? `Evalúa este concepto:\n\nConcepto: ${concept}\nDefinición: ${definition}\nTensión: ${tensionInsight}`
+      : `Evaluate this concept:\n\nConcept: ${concept}\nDefinition: ${definition}\nTension: ${tensionInsight}`
+
     const critResult = await call(
       config.agentB.provider,
       critSys(worldModelB, gen, config.lang),
-      `Evaluate this concept:\n\nConcept: ${concept}\nDefinition: ${definition}\nTension: ${tensionInsight}`,
+      critUser,
       config.agentB.model,
       config.agentB.apiKey,
     )

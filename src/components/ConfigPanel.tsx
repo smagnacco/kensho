@@ -174,19 +174,15 @@ export function ConfigPanel({ config, onChange, disabled }: Props) {
       className="rounded p-4 space-y-4"
       style={{ background: '#0e0e1c', border: '1px solid #1a1a2e' }}
     >
-      <div className="text-sm font-semibold" style={{ color: '#e5e7eb' }}>
-        {t.configuration}
-      </div>
-
-      <div>
-        <span className="text-xs block mb-1" style={{ color: '#6b7280' }}>
-          {t.language}
-        </span>
+      <div className="flex items-center justify-between">
+        <div className="text-sm font-semibold" style={{ color: '#e5e7eb' }}>
+          {t.configuration}
+        </div>
         <select
-          value={config.lang}
+          value={config.lang ?? 'es'}
           disabled={disabled}
           onChange={(e) => onChange({ ...config, lang: e.target.value as Lang })}
-          className="w-full rounded px-2 py-1.5 text-sm font-mono"
+          className="rounded px-2 py-1 text-xs font-mono"
           style={{ background: '#09090f', color: '#e5e7eb', border: '1px solid #1a1a2e' }}
         >
           {(Object.keys(STRINGS) as Lang[]).map((l) => (
