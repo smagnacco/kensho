@@ -17,6 +17,7 @@ export interface ExperimentConfig {
   agentA: AgentConfig
   agentB: AgentConfig
   agentP: AgentConfig
+  lang: 'en' | 'es'
 }
 
 export interface WorldModel {

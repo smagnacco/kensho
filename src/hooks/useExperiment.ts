@@ -2,10 +2,12 @@ import { useState, useRef, useCallback } from 'react'
 import { ExperimentConfig, ExperimentState, TensionRecord, PerturbationRecord } from '../types'
 import { emptyWorldModel } from '../agents/worldModel'
 import { runGeneration, betweenGenerations } from '../agents/evolution'
+import { STRINGS } from '../i18n'
 
 const defaultConfig: ExperimentConfig = {
   generations: 3,
   rounds: 3,
+  lang: 'es',
   agentA: {
     provider: 'anthropic',
     model: 'claude-sonnet-4-5',
@@ -59,10 +61,12 @@ export function useExperiment() {
 
   const start = useCallback(async () => {
     abortRef.current = false
+    const t = STRINGS[config.lang]
+
     setState({
       ...initialState,
       status: 'running',
-      log: [{ timestamp: new Date().toISOString().slice(11, 19), message: 'Experiment started', level: 'info' }],
+      log: [{ timestamp: new Date().toISOString().slice(11, 19), message: t.logStarted, level: 'info' }],
     })
 
     let wmA = emptyWorldModel()
@@ -86,6 +90,7 @@ export function useExperiment() {
             }))
           },
           onLog: appendLog,
+          t,
         })
 
         if (abortRef.current) break
@@ -93,11 +98,10 @@ export function useExperiment() {
         wmA = result.worldModelA
         wmB = result.worldModelB
 
-        // Perturbation between generations (not after the last one)
         let perturbRecord: PerturbationRecord | undefined
         if (gen < config.generations && !abortRef.current) {
           updateState({ currentPhase: 'perturbing' })
-          const perturbResult = await betweenGenerations(wmA, wmB, config, gen, { onLog: appendLog })
+          const perturbResult = await betweenGenerations(wmA, wmB, config, gen, { onLog: appendLog, t })
           wmA = perturbResult.newWmA
           wmB = perturbResult.newWmB
           perturbRecord = perturbResult.record
@@ -122,21 +126,22 @@ export function useExperiment() {
 
       updateState({
         status: abortRef.current ? 'idle' : 'done',
-        currentPhase: abortRef.current ? 'Stopped' : 'Complete',
+        currentPhase: abortRef.current ? t.phaseStopped : t.phaseComplete,
       })
-      appendLog(abortRef.current ? 'Experiment stopped by user' : 'Experiment complete')
+      appendLog(abortRef.current ? t.logStopped : t.logComplete)
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
-      updateState({ status: 'error', error: message, currentPhase: 'Error' })
-      appendLog(`Error: ${message}`, 'error')
+      updateState({ status: 'error', error: message, currentPhase: t.phaseError })
+      appendLog(`${t.phaseError}: ${message}`, 'error')
     }
   }, [config, updateState, appendLog])
 
   const stop = useCallback(() => {
+    const t = STRINGS[config.lang]
     abortRef.current = true
-    updateState({ currentPhase: 'Stopping...' })
-    appendLog('Stop requested...', 'warn')
-  }, [updateState, appendLog])
+    updateState({ currentPhase: t.phaseStopping })
+    appendLog(t.logStopRequested, 'warn')
+  }, [config.lang, updateState, appendLog])
 
   return { config, setConfig, state, start, stop }
 }

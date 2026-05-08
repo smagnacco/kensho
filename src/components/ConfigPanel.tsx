@@ -1,5 +1,7 @@
 import { ExperimentConfig, Provider, ModelId } from '../types'
 import { MODEL_CATALOG, defaultModelForProvider, apiKeyEnvVar } from '../config/models'
+import { useLang } from '../i18n/context'
+import { Lang, STRINGS } from '../i18n'
 
 interface Props {
   config: ExperimentConfig
@@ -30,6 +32,7 @@ function AgentConfig({
   onKeyChange: (k: string) => void
   disabled: boolean
 }) {
+  const t = useLang()
   const models = MODEL_CATALOG[provider]
   const safeModel = models.find((m) => m.id === model) ? model : models[0].id
 
@@ -44,7 +47,7 @@ function AgentConfig({
 
       <label className="block">
         <span className="text-xs block mb-1" style={{ color: '#6b7280' }}>
-          Proveedor
+          {t.provider}
         </span>
         <select
           value={provider}
@@ -61,7 +64,7 @@ function AgentConfig({
 
       <label className="block">
         <span className="text-xs block mb-1" style={{ color: '#6b7280' }}>
-          Modelo
+          {t.model}
         </span>
         <select
           value={safeModel}
@@ -80,7 +83,7 @@ function AgentConfig({
 
       <label className="block">
         <span className="text-xs block mb-1" style={{ color: '#6b7280' }}>
-          API Key
+          {t.apiKey}
         </span>
         <input
           type="password"
@@ -150,6 +153,8 @@ function Slider({
 }
 
 export function ConfigPanel({ config, onChange, disabled }: Props) {
+  const t = useLang()
+
   const setA = (patch: Partial<typeof config.agentA>) =>
     onChange({ ...config, agentA: { ...config.agentA, ...patch } })
   const setB = (patch: Partial<typeof config.agentB>) =>
@@ -170,11 +175,30 @@ export function ConfigPanel({ config, onChange, disabled }: Props) {
       style={{ background: '#0e0e1c', border: '1px solid #1a1a2e' }}
     >
       <div className="text-sm font-semibold" style={{ color: '#e5e7eb' }}>
-        Configuracion
+        {t.configuration}
+      </div>
+
+      <div>
+        <span className="text-xs block mb-1" style={{ color: '#6b7280' }}>
+          {t.language}
+        </span>
+        <select
+          value={config.lang}
+          disabled={disabled}
+          onChange={(e) => onChange({ ...config, lang: e.target.value as Lang })}
+          className="w-full rounded px-2 py-1.5 text-sm font-mono"
+          style={{ background: '#09090f', color: '#e5e7eb', border: '1px solid #1a1a2e' }}
+        >
+          {(Object.keys(STRINGS) as Lang[]).map((l) => (
+            <option key={l} value={l}>
+              {l === 'en' ? 'English' : 'Español'}
+            </option>
+          ))}
+        </select>
       </div>
 
       <Slider
-        label="Generaciones"
+        label={t.generations}
         value={config.generations}
         min={2}
         max={8}
@@ -182,7 +206,7 @@ export function ConfigPanel({ config, onChange, disabled }: Props) {
         disabled={disabled}
       />
       <Slider
-        label="Rondas por generacion"
+        label={t.roundsPerGeneration}
         value={config.rounds}
         min={2}
         max={10}
@@ -192,7 +216,7 @@ export function ConfigPanel({ config, onChange, disabled }: Props) {
 
       <div className="grid grid-cols-1 gap-4 pt-1">
         <AgentConfig
-          label="Agent-A · Generador"
+          label={t.agentA}
           color="#00e5cc"
           provider={config.agentA.provider}
           model={config.agentA.model}
@@ -203,7 +227,7 @@ export function ConfigPanel({ config, onChange, disabled }: Props) {
           disabled={disabled}
         />
         <AgentConfig
-          label="Agent-B · Critico"
+          label={t.agentB}
           color="#a78bfa"
           provider={config.agentB.provider}
           model={config.agentB.model}
@@ -214,9 +238,9 @@ export function ConfigPanel({ config, onChange, disabled }: Props) {
           disabled={disabled}
         />
         <AgentConfig
-          label="Agent-P · Perturbador"
+          label={t.agentP}
           color="#f59e0b"
-          note="Se ejecuta entre generaciones con Haiku por defecto"
+          note={t.agentPNote}
           provider={config.agentP.provider}
           model={config.agentP.model}
           apiKey={config.agentP.apiKey}

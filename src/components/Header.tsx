@@ -1,4 +1,5 @@
 import { ExperimentState } from '../types'
+import { useLang } from '../i18n/context'
 
 interface Props {
   state: ExperimentState
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export function Header({ state, onStart, onStop }: Props) {
+  const t = useLang()
   const running = state.status === 'running'
 
   return (
@@ -19,14 +21,14 @@ export function Header({ state, onStart, onStop }: Props) {
           Kenshō
         </h1>
         <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>
-          ver la propia naturaleza — adversarial evolutionary consciousness explorer
+          {t.subtitle}
         </p>
       </div>
 
       <div className="flex items-center gap-6">
         <div className="text-right">
           <div className="text-xs" style={{ color: '#6b7280' }}>
-            costo total
+            {t.totalCost}
           </div>
           <div className="font-mono text-lg font-medium" style={{ color: '#f59e0b' }}>
             ${state.totalCost.toFixed(4)}
@@ -39,7 +41,7 @@ export function Header({ state, onStart, onStop }: Props) {
             className="px-4 py-2 rounded text-sm font-medium transition-colors"
             style={{ background: '#ef4444', color: '#fff' }}
           >
-            Detener
+            {t.stop}
           </button>
         ) : (
           <button
@@ -50,7 +52,7 @@ export function Header({ state, onStart, onStop }: Props) {
               color: '#09090f',
             }}
           >
-            {state.status === 'done' ? 'Reiniciar' : 'Iniciar'}
+            {state.status === 'done' ? t.restart : t.start}
           </button>
         )}
       </div>

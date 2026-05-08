@@ -14,6 +14,7 @@ import { ExperimentConfig, TensionRecord, GenerationResult, WorldModel, Perturba
 import { call } from '../api'
 import { genSys, critSys, distillSys, distillUser, perturbSys, perturbUser } from './prompts'
 import { safeWM, applyPerturbation, crossoverTensions } from './worldModel'
+import { Strings } from '../i18n'
 
 export function calcCoherence(interactions: TensionRecord[]): number {
   if (interactions.length === 0) return 0
@@ -26,6 +27,7 @@ export interface RunGenerationCallbacks {
   onRoundStart: (round: number, phase: string) => void
   onInteraction: (record: TensionRecord) => void
   onLog: (msg: string, level?: 'info' | 'warn' | 'error') => void
+  t: Strings
 }
 
 export async function betweenGenerations(
@@ -33,14 +35,14 @@ export async function betweenGenerations(
   wmB: WorldModel,
   config: ExperimentConfig,
   afterGeneration: number,
-  cb: Pick<RunGenerationCallbacks, 'onLog'>,
+  cb: Pick<RunGenerationCallbacks, 'onLog' | 't'>,
 ): Promise<{ newWmA: WorldModel; newWmB: WorldModel; record: PerturbationRecord }> {
-  cb.onLog(`Gen ${afterGeneration}: Agent-P perturbando world models...`)
+  cb.onLog(cb.t.logPerturbing(afterGeneration))
 
   const result = await call(
     config.agentP.provider,
-    perturbSys(),
-    perturbUser(wmA, wmB),
+    perturbSys(config.lang),
+    perturbUser(wmA, wmB, config.lang),
     config.agentP.model,
     config.agentP.apiKey,
   )
@@ -62,7 +64,7 @@ export async function betweenGenerations(
     cost: result.cost,
   }
 
-  cb.onLog(`Gen ${afterGeneration}: perturbación aplicada (costo: $${result.cost.toFixed(5)})`)
+  cb.onLog(cb.t.logPerturbApplied(afterGeneration, result.cost.toFixed(5)))
 
   return { newWmA, newWmB, record }
 }
@@ -77,12 +79,12 @@ export async function runGeneration(
   const interactions: TensionRecord[] = []
 
   for (let round = 1; round <= config.rounds; round++) {
-    cb.onRoundStart(round, 'generating')
-    cb.onLog(`Gen ${gen} Round ${round}: Agent-A generating concept...`)
+    cb.onRoundStart(round, cb.t.phaseGenerating)
+    cb.onLog(cb.t.logGenerating(gen, round))
 
     const genResult = await call(
       config.agentA.provider,
-      genSys(worldModelA, gen),
+      genSys(worldModelA, gen, config.lang),
       `Generate a philosophical concept for round ${round} of generation ${gen}.`,
       config.agentA.model,
       config.agentA.apiKey,
@@ -95,12 +97,12 @@ export async function runGeneration(
     const genInfoGain = typeof genData.informationGain === 'number' ? genData.informationGain : 0.5
     const genCost = genResult.cost
 
-    cb.onRoundStart(round, 'critiquing')
-    cb.onLog(`Gen ${gen} Round ${round}: Agent-B critiquing "${concept}"...`)
+    cb.onRoundStart(round, cb.t.phaseCritiquing)
+    cb.onLog(cb.t.logCritiquing(gen, round, concept))
 
     const critResult = await call(
       config.agentB.provider,
-      critSys(worldModelB, gen),
+      critSys(worldModelB, gen, config.lang),
       `Evaluate this concept:\n\nConcept: ${concept}\nDefinition: ${definition}\nTension: ${tensionInsight}`,
       config.agentB.model,
       config.agentB.apiKey,
@@ -134,10 +136,10 @@ export async function runGeneration(
 
     interactions.push(record)
     cb.onInteraction(record)
-    cb.onLog(`Gen ${gen} Round ${round}: "${concept}" → ${outcome.toUpperCase()} (gain: ${informationGain.toFixed(2)})`)
+    cb.onLog(cb.t.logInteraction(gen, round, concept, outcome.toUpperCase(), informationGain.toFixed(2)))
   }
 
-  cb.onLog(`Gen ${gen}: Distilling world models...`)
+  cb.onLog(cb.t.logDistilling(gen))
 
   const interactionSummary = interactions.map((i) => ({
     concept: i.concept,
@@ -148,15 +150,15 @@ export async function runGeneration(
   const [distillA, distillB] = await Promise.all([
     call(
       config.agentA.provider,
-      distillSys(),
-      distillUser('Agent-A', interactionSummary, worldModelA),
+      distillSys(config.lang),
+      distillUser('Agent-A', interactionSummary, worldModelA, config.lang),
       config.agentA.model,
       config.agentA.apiKey,
     ),
     call(
       config.agentB.provider,
-      distillSys(),
-      distillUser('Agent-B', interactionSummary, worldModelB),
+      distillSys(config.lang),
+      distillUser('Agent-B', interactionSummary, worldModelB, config.lang),
       config.agentB.model,
       config.agentB.apiKey,
     ),
@@ -172,9 +174,7 @@ export async function runGeneration(
   )
   const totalCost = interactionCost + distillCosts.agentA + distillCosts.agentB
 
-  cb.onLog(
-    `Gen ${gen}: coherence=${coherence.toFixed(3)}, cost=$${totalCost.toFixed(4)}`,
-  )
+  cb.onLog(cb.t.logCoherence(gen, coherence.toFixed(3), totalCost.toFixed(4)))
 
   return {
     generation: gen,

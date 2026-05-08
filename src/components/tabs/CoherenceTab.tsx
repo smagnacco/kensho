@@ -1,10 +1,13 @@
 import { GenerationResult } from '../../types'
+import { useLang } from '../../i18n/context'
 
 interface Props {
   generations: GenerationResult[]
 }
 
 export function CoherenceTab({ generations }: Props) {
+  const t = useLang()
+
   if (generations.length === 0) {
     return (
       <div className="p-4">
@@ -12,7 +15,7 @@ export function CoherenceTab({ generations }: Props) {
           className="rounded p-6 text-sm text-center"
           style={{ background: '#0e0e1c', border: '1px solid #1a1a2e', color: '#4b5563' }}
         >
-          Los datos de coherencia apareceran despues de la primera generacion.
+          {t.noCoherenceData}
         </div>
       </div>
     )
@@ -24,12 +27,12 @@ export function CoherenceTab({ generations }: Props) {
     <div className="p-4 space-y-6">
       <div className="space-y-3">
         <div className="text-xs font-semibold" style={{ color: '#6b7280' }}>
-          Evolucion de coherencia
+          {t.coherenceEvolution}
         </div>
         {generations.map((g) => (
           <div key={g.generation} className="space-y-1">
             <div className="flex justify-between text-xs font-mono" style={{ color: '#6b7280' }}>
-              <span>Gen {g.generation}</span>
+              <span>{t.gen} {g.generation}</span>
               <span style={{ color: '#10b981' }}>{(g.coherence * 100).toFixed(1)}%</span>
             </div>
             <div className="relative h-4 rounded overflow-hidden" style={{ background: '#1a1a2e' }}>
@@ -42,7 +45,7 @@ export function CoherenceTab({ generations }: Props) {
               />
             </div>
             <div className="text-xs font-mono" style={{ color: '#4b5563' }}>
-              costo: ${g.totalCost.toFixed(4)}
+              {t.cost}: ${g.totalCost.toFixed(4)}
             </div>
           </div>
         ))}
@@ -55,7 +58,7 @@ export function CoherenceTab({ generations }: Props) {
         <table className="w-full text-xs font-mono">
           <thead>
             <tr style={{ background: '#0e0e1c', borderBottom: '1px solid #1a1a2e' }}>
-              {['Gen', 'Rondas', 'Aceptados', 'Evolucionados', 'Rechazados', 'Coherencia', 'Costo'].map((h) => (
+              {[t.gen, t.rounds, t.accepted, t.evolved, t.rejected, t.coherence, t.cost].map((h) => (
                 <th key={h} className="text-left px-3 py-2" style={{ color: '#6b7280' }}>
                   {h}
                 </th>
@@ -75,27 +78,13 @@ export function CoherenceTab({ generations }: Props) {
                     borderBottom: '1px solid #1a1a2e',
                   }}
                 >
-                  <td className="px-3 py-2" style={{ color: '#e5e7eb' }}>
-                    {g.generation}
-                  </td>
-                  <td className="px-3 py-2" style={{ color: '#9ca3af' }}>
-                    {g.interactions.length}
-                  </td>
-                  <td className="px-3 py-2" style={{ color: '#10b981' }}>
-                    {accepted}
-                  </td>
-                  <td className="px-3 py-2" style={{ color: '#a78bfa' }}>
-                    {evolved}
-                  </td>
-                  <td className="px-3 py-2" style={{ color: '#ef4444' }}>
-                    {rejected}
-                  </td>
-                  <td className="px-3 py-2" style={{ color: '#10b981' }}>
-                    {(g.coherence * 100).toFixed(1)}%
-                  </td>
-                  <td className="px-3 py-2" style={{ color: '#f59e0b' }}>
-                    ${g.totalCost.toFixed(4)}
-                  </td>
+                  <td className="px-3 py-2" style={{ color: '#e5e7eb' }}>{g.generation}</td>
+                  <td className="px-3 py-2" style={{ color: '#9ca3af' }}>{g.interactions.length}</td>
+                  <td className="px-3 py-2" style={{ color: '#10b981' }}>{accepted}</td>
+                  <td className="px-3 py-2" style={{ color: '#a78bfa' }}>{evolved}</td>
+                  <td className="px-3 py-2" style={{ color: '#ef4444' }}>{rejected}</td>
+                  <td className="px-3 py-2" style={{ color: '#10b981' }}>{(g.coherence * 100).toFixed(1)}%</td>
+                  <td className="px-3 py-2" style={{ color: '#f59e0b' }}>${g.totalCost.toFixed(4)}</td>
                 </tr>
               )
             })}

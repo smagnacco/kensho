@@ -1,4 +1,5 @@
 import { TensionRecord, LogEntry, PerturbationRecord } from '../../types'
+import { useLang } from '../../i18n/context'
 
 const outcomeColor: Record<string, string> = {
   accepted: '#10b981',
@@ -7,6 +8,7 @@ const outcomeColor: Record<string, string> = {
 }
 
 function InteractionCard({ record }: { record: TensionRecord }) {
+  const t = useLang()
   const color = outcomeColor[record.outcome]
   return (
     <div
@@ -33,12 +35,12 @@ function InteractionCard({ record }: { record: TensionRecord }) {
         {record.definition}
       </p>
       <p className="text-xs" style={{ color: '#6b7280' }}>
-        Tension: {record.tensionInsight}
+        {t.tension}: {record.tensionInsight}
       </p>
       <div className="flex gap-4 text-xs font-mono" style={{ color: '#4b5563' }}>
-        <span>gain: {record.informationGain.toFixed(2)}</span>
+        <span>{t.gain}: {record.informationGain.toFixed(2)}</span>
         <span>
-          cost: ${(record.stageCosts.generation + record.stageCosts.critique).toFixed(4)}
+          {t.cost}: ${(record.stageCosts.generation + record.stageCosts.critique).toFixed(4)}
         </span>
       </div>
     </div>
@@ -46,6 +48,7 @@ function InteractionCard({ record }: { record: TensionRecord }) {
 }
 
 function PerturbationCard({ record }: { record: PerturbationRecord }) {
+  const t = useLang()
   return (
     <div
       className="rounded p-3 space-y-2"
@@ -53,7 +56,7 @@ function PerturbationCard({ record }: { record: PerturbationRecord }) {
     >
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold font-mono" style={{ color: '#f59e0b' }}>
-          PERTURBACIÓN · G{record.afterGeneration} → G{record.afterGeneration + 1}
+          {t.perturbationHeader} · G{record.afterGeneration} → G{record.afterGeneration + 1}
         </span>
         <span className="text-xs font-mono" style={{ color: '#4b5563' }}>
           Agent-P
@@ -61,16 +64,16 @@ function PerturbationCard({ record }: { record: PerturbationRecord }) {
       </div>
       <div className="text-xs space-y-1">
         <div>
-          <span style={{ color: '#00e5cc' }}>→ Agent-A: </span>
+          <span style={{ color: '#00e5cc' }}>{t.perturbationAgentA} </span>
           <span style={{ color: '#9ca3af' }}>{record.perturbationA}</span>
         </div>
         <div>
-          <span style={{ color: '#a78bfa' }}>→ Agent-B: </span>
+          <span style={{ color: '#a78bfa' }}>{t.perturbationAgentB} </span>
           <span style={{ color: '#9ca3af' }}>{record.perturbationB}</span>
         </div>
       </div>
       <p className="text-xs" style={{ color: '#6b7280' }}>
-        Rationale: {record.rationale}
+        {t.rationale}: {record.rationale}
       </p>
       <div className="text-xs font-mono text-right" style={{ color: '#4b5563' }}>
         ${record.cost.toFixed(5)}
@@ -80,6 +83,7 @@ function PerturbationCard({ record }: { record: PerturbationRecord }) {
 }
 
 function LogPanel({ entries }: { entries: LogEntry[] }) {
+  const t = useLang()
   const levelColor: Record<string, string> = {
     info: '#6b7280',
     warn: '#f59e0b',
@@ -92,11 +96,11 @@ function LogPanel({ entries }: { entries: LogEntry[] }) {
       style={{ background: '#0e0e1c', border: '1px solid #1a1a2e', minHeight: 200 }}
     >
       <div className="px-3 py-2 text-xs font-semibold" style={{ color: '#6b7280', borderBottom: '1px solid #1a1a2e' }}>
-        log del sistema
+        {t.systemLog}
       </div>
       <div className="flex-1 overflow-y-auto p-3 space-y-1 font-mono text-xs" style={{ maxHeight: 400 }}>
         {entries.length === 0 && (
-          <div style={{ color: '#374151' }}>esperando...</div>
+          <div style={{ color: '#374151' }}>{t.waiting}</div>
         )}
         {entries.map((e, i) => (
           <div key={i} className="flex gap-2">
@@ -116,8 +120,8 @@ interface Props {
 }
 
 export function LiveTab({ interactions, perturbations, log }: Props) {
-  // Build an interleaved list: group interactions by generation,
-  // inserting perturbation cards between consecutive generation groups.
+  const t = useLang()
+
   type Item =
     | { kind: 'interaction'; record: TensionRecord }
     | { kind: 'perturbation'; record: PerturbationRecord }
@@ -144,7 +148,7 @@ export function LiveTab({ interactions, perturbations, log }: Props) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4">
       <div>
         <div className="text-xs font-semibold mb-3" style={{ color: '#6b7280' }}>
-          interacciones ({interactions.length})
+          {t.interactions} ({interactions.length})
         </div>
         <div className="space-y-3">
           {items.length === 0 && (
@@ -152,7 +156,7 @@ export function LiveTab({ interactions, perturbations, log }: Props) {
               className="rounded p-4 text-xs"
               style={{ background: '#0e0e1c', border: '1px solid #1a1a2e', color: '#374151' }}
             >
-              Inicia el experimento para ver las interacciones en tiempo real.
+              {t.waitingForExperiment}
             </div>
           )}
           {items.map((item, i) =>
@@ -169,7 +173,7 @@ export function LiveTab({ interactions, perturbations, log }: Props) {
       </div>
       <div>
         <div className="text-xs font-semibold mb-3" style={{ color: '#6b7280' }}>
-          log del sistema
+          {t.systemLog}
         </div>
         <LogPanel entries={log} />
       </div>
