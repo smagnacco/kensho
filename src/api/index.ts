@@ -9,8 +9,9 @@ export async function call(
   user: string,
   model: ModelId,
   apiKey: string,
+  maxTokens = 1800,
 ): Promise<{ parsed: unknown; cost: number }> {
-  if (provider === 'anthropic') return callAnthropic(system, user, model, apiKey)
-  if (provider === 'grok') return callGrok(system, user, model, apiKey)
-  return callOpenAI(system, user, model, apiKey)
+  if (provider === 'anthropic') return callAnthropic(system, user, model, apiKey, maxTokens)
+  if (provider === 'grok') return callGrok(system, user, model, apiKey, maxTokens)
+  return callOpenAI(system, user, model, apiKey, maxTokens)
 }

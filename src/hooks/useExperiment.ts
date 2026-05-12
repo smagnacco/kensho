@@ -10,12 +10,12 @@ const defaultConfig: ExperimentConfig = {
   lang: 'es',
   agentA: {
     provider: 'anthropic',
-    model: 'claude-sonnet-4-5',
+    model: 'claude-haiku-4-5',
     apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY ?? '',
   },
   agentB: {
     provider: 'anthropic',
-    model: 'claude-sonnet-4-5',
+    model: 'claude-haiku-4-5',
     apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY ?? '',
   },
   agentP: {

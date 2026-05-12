@@ -23,19 +23,31 @@ export interface ApiResult {
 }
 
 export function parseJson(raw: string): unknown {
-  const stripped = raw.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim()
+  // Strip all markdown code fences anywhere in the string
+  const stripped = raw
+    .replace(/```json\s*/gi, '')
+    .replace(/```\s*/g, '')
+    .trim()
+
+  // Try direct parse first
   try {
     return JSON.parse(stripped)
   } catch {
+    // Extract the first {...} block — handles leading/trailing prose
     const match = stripped.match(/\{[\s\S]*\}/)
     if (match) {
       try {
         return JSON.parse(match[0])
       } catch {
-        // fall through to error
+        // JSON is likely truncated (hit max_tokens mid-object)
+        throw new Error(
+          `Response JSON is malformed or truncated. Raw (first 500 chars): ${raw.slice(0, 500)}`,
+        )
       }
     }
-    throw new Error(`No JSON object found in response. Raw (first 300 chars): ${raw.slice(0, 300)}`)
+    throw new Error(
+      `No JSON object found in response. Raw (first 500 chars): ${raw.slice(0, 500)}`,
+    )
   }
 }
 
@@ -44,6 +56,7 @@ export async function callAnthropic(
   user: string,
   model: ModelId,
   apiKey: string,
+  maxTokens = 1800,
 ): Promise<{ parsed: unknown; cost: number }> {
   const res = await fetch('/anthropic/v1/messages', {
     method: 'POST',
@@ -54,7 +67,7 @@ export async function callAnthropic(
     },
     body: JSON.stringify({
       model,
-      max_tokens: 1800,
+      max_tokens: maxTokens,
       system,
       messages: [{ role: 'user', content: user }],
     }),

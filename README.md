@@ -83,8 +83,8 @@ Each of the three agents (A, B, P) is configured independently:
 
 | Agent | Role | Default model |
 |-------|------|---------------|
-| Agent-A | Generator — proposes concepts | claude-sonnet-4-5 |
-| Agent-B | Critic — accepts, rejects, or evolves | claude-sonnet-4-5 |
+| Agent-A | Generator — proposes concepts | claude-haiku-4-5 |
+| Agent-B | Critic — accepts, rejects, or evolves | claude-haiku-4-5 |
 | Agent-P | Perturber — disrupts between generations | claude-haiku-4-5 |
 
 Supported providers: **Anthropic**, **OpenAI**, **Grok (xAI)**. Any agent can use any provider — you can run A on Claude, B on GPT-4o, and P on Grok simultaneously.

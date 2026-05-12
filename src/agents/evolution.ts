@@ -162,6 +162,7 @@ export async function runGeneration(
       distillUser('Agent-A', interactionSummary, worldModelA, config.lang),
       config.agentA.model,
       config.agentA.apiKey,
+      4000,
     ),
     call(
       config.agentB.provider,
@@ -169,6 +170,7 @@ export async function runGeneration(
       distillUser('Agent-B', interactionSummary, worldModelB, config.lang),
       config.agentB.model,
       config.agentB.apiKey,
+      4000,
     ),
   ])
 

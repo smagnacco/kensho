@@ -6,6 +6,7 @@ export async function callGrok(
   user: string,
   model: ModelId,
   apiKey: string,
+  maxTokens = 1800,
 ): Promise<{ parsed: unknown; cost: number }> {
   const res = await fetch('https://api.x.ai/v1/chat/completions', {
     method: 'POST',
@@ -15,7 +16,7 @@ export async function callGrok(
     },
     body: JSON.stringify({
       model,
-      max_tokens: 1800,
+      max_tokens: maxTokens,
       messages: [
         { role: 'system', content: system },
         { role: 'user', content: user },
