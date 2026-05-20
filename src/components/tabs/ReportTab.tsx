@@ -1,5 +1,6 @@
 import { GenerationResult, ExperimentConfig, PerturbationRecord } from '../../types'
 import { useLang } from '../../i18n/context'
+import { downloadReport } from '../../utils/exportReport'
 
 interface Props {
   generations: GenerationResult[]
@@ -46,6 +47,23 @@ export function ReportTab({ generations, perturbations, config }: Props) {
 
   return (
     <div className="p-4 space-y-8">
+      {/* Export Button */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => downloadReport(generations, perturbations, config, 'kensho-report')}
+          className="px-4 py-2 text-sm font-medium rounded text-white transition-all"
+          style={{
+            background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+          onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+        >
+          {t.exportReport || 'Export Report'}
+        </button>
+      </div>
+
       {/* 1. Summary */}
       <section>
         <h2 className="text-sm font-semibold mb-3" style={{ color: '#e5e7eb' }}>{t.summary}</h2>

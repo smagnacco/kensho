@@ -98,6 +98,7 @@ export interface Strings {
   agentBReceived: string
   rationaleLabel: string
   critique: string
+  exportReport: string
 
   // Log messages
   logStarted: string
@@ -203,6 +204,7 @@ const en: Strings = {
   agentBReceived: 'Agent-B received:',
   rationaleLabel: 'Rationale:',
   critique: 'Critique',
+  exportReport: 'Export Report',
 
   logStarted: 'Experiment started',
   logStopped: 'Experiment stopped by user',
@@ -308,6 +310,7 @@ const es: Strings = {
   agentBReceived: 'Agent-B recibio:',
   rationaleLabel: 'Racional:',
   critique: 'Critica',
+  exportReport: 'Exportar Reporte',
 
   logStarted: 'Experimento iniciado',
   logStopped: 'Experimento detenido por el usuario',
