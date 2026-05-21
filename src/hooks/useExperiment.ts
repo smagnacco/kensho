@@ -8,6 +8,9 @@ const defaultConfig: ExperimentConfig = {
   generations: 3,
   rounds: 3,
   lang: 'es',
+  experimentType: 'heuristic',
+  embeddingBackend: 'transformers',
+  disablePerturbation: false,
   agentA: {
     provider: 'anthropic',
     model: 'claude-haiku-4-5',
@@ -39,6 +42,7 @@ const initialState: ExperimentState = {
   perturbations: [],
   log: [],
   error: null,
+  entropicData: [],
 }
 
 export function useExperiment() {
@@ -99,7 +103,7 @@ export function useExperiment() {
         wmB = result.worldModelB
 
         let perturbRecord: PerturbationRecord | undefined
-        if (gen < config.generations && !abortRef.current) {
+        if (gen < config.generations && !abortRef.current && !config.disablePerturbation) {
           updateState({ currentPhase: 'perturbing' })
           const perturbResult = await betweenGenerations(wmA, wmB, config, gen, { onLog: appendLog, t })
           wmA = perturbResult.newWmA
@@ -113,15 +117,21 @@ export function useExperiment() {
           }))
         }
 
-        setState((prev) => ({
-          ...prev,
-          generations: [...prev.generations, { ...result, perturbation: perturbRecord }],
+        const generationWithPerturbation = { ...result, perturbation: perturbRecord }
+        const patch: Partial<ExperimentState> = {
+          generations: [...state.generations, generationWithPerturbation],
           worldModelA: wmA,
           worldModelB: wmB,
           coherence: result.coherence,
-          totalCost: prev.totalCost + result.distillCosts.agentA + result.distillCosts.agentB,
+          totalCost: state.totalCost + result.distillCosts.agentA + result.distillCosts.agentB,
           currentInteractions: [],
-        }))
+        }
+
+        if (result.entropicMetrics) {
+          patch.entropicData = [...state.entropicData, result.entropicMetrics]
+        }
+
+        setState((prev) => ({ ...prev, ...patch }))
       }
 
       updateState({

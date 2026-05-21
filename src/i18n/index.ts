@@ -35,12 +35,21 @@ export interface Strings {
   agentP: string
   agentPNote: string
   language: string
+  experimentType: string
+  heuristic: string
+  entropic: string
+  embeddingBackend: string
+  transformersOffline: string
+  openaiApi: string
+  disablePerturbation: string
 
   // Tabs
   tabLive: string
   tabModels: string
   tabCoherence: string
   tabReport: string
+  tabEntropy: string
+  tabEmbeddings: string
 
   // LiveTab
   interactions: string
@@ -99,6 +108,12 @@ export interface Strings {
   rationaleLabel: string
   critique: string
   exportReport: string
+  outcomeEntropy: string
+  cosineDistance: string
+  surpriseProxy: string
+  wmChangeRate: string
+  wmSize: string
+  entropicCoherenceNote: string
 
   // Log messages
   logStarted: string
@@ -146,11 +161,20 @@ const en: Strings = {
   agentP: 'Agent-P · Perturber',
   agentPNote: 'Runs between generations, Haiku by default',
   language: 'Language',
+  experimentType: 'Experiment Type',
+  heuristic: 'Heuristic',
+  entropic: 'Entropic',
+  embeddingBackend: 'Embedding Backend',
+  transformersOffline: 'transformers.js (offline)',
+  openaiApi: 'OpenAI API',
+  disablePerturbation: 'Disable Perturbation',
 
   tabLive: 'Live',
   tabModels: 'World Models',
   tabCoherence: 'Coherence',
   tabReport: 'Report',
+  tabEntropy: 'Entropy',
+  tabEmbeddings: 'Embeddings',
 
   interactions: 'interactions',
   systemLog: 'system log',
@@ -205,6 +229,12 @@ const en: Strings = {
   rationaleLabel: 'Rationale:',
   critique: 'Critique',
   exportReport: 'Export Report',
+  outcomeEntropy: 'Outcome Entropy',
+  cosineDistance: 'Cosine Distance',
+  surpriseProxy: 'Surprise Index',
+  wmChangeRate: 'WM Change Rate',
+  wmSize: 'World Model Size',
+  entropicCoherenceNote: 'In entropic mode, coherence measures chaos (peak = max chaos, collapse = insight)',
 
   logStarted: 'Experiment started',
   logStopped: 'Experiment stopped by user',
@@ -252,11 +282,20 @@ const es: Strings = {
   agentP: 'Agent-P · Perturbador',
   agentPNote: 'Se ejecuta entre generaciones con Haiku por defecto',
   language: 'Idioma',
+  experimentType: 'Tipo de Experimento',
+  heuristic: 'Heurístico',
+  entropic: 'Entropico',
+  embeddingBackend: 'Motor de Embeddings',
+  transformersOffline: 'transformers.js (offline)',
+  openaiApi: 'OpenAI API',
+  disablePerturbation: 'Sin Perturbación',
 
   tabLive: 'En vivo',
   tabModels: 'World Models',
   tabCoherence: 'Coherencia',
   tabReport: 'Reporte',
+  tabEntropy: 'Entropía',
+  tabEmbeddings: 'Embeddings',
 
   interactions: 'interacciones',
   systemLog: 'log del sistema',
@@ -311,6 +350,12 @@ const es: Strings = {
   rationaleLabel: 'Racional:',
   critique: 'Critica',
   exportReport: 'Exportar Reporte',
+  outcomeEntropy: 'Entropía de Outcomes',
+  cosineDistance: 'Distancia Coseno',
+  surpriseProxy: 'Índice de Sorpresa',
+  wmChangeRate: 'Tasa de Cambio WM',
+  wmSize: 'Tamaño World Model',
+  entropicCoherenceNote: 'En modo entropico, coherencia mide caos (pico = máximo caos, colapso = insight)',
 
   logStarted: 'Experimento iniciado',
   logStopped: 'Experimento detenido por el usuario',

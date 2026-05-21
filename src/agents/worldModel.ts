@@ -64,3 +64,12 @@ export function crossoverTensions(
     newWmB: { ...wmB, tensionPatterns: [...wmB.tensionPatterns, ...tensionsFromA] },
   }
 }
+
+export function serializeWM(wm: WorldModel): string {
+  return [
+    `Confirmed Insights: ${saj(wm.confirmedInsights)}`,
+    `Rejected Paths: ${saj(wm.rejectedPaths)}`,
+    `Tension Patterns: ${saj(wm.tensionPatterns)}`,
+    `Theory of Other: ${wm.theoryOfOther}`,
+  ].join('\n')
+}

@@ -7,9 +7,11 @@ import { LiveTab } from './components/tabs/LiveTab'
 import { ModelsTab } from './components/tabs/ModelsTab'
 import { CoherenceTab } from './components/tabs/CoherenceTab'
 import { ReportTab } from './components/tabs/ReportTab'
+import { EntropyTab } from './components/tabs/EntropyTab'
+import { EmbeddingsTab } from './components/tabs/EmbeddingsTab'
 import { LangContext, STRINGS } from './i18n/context'
 
-type TabId = 'live' | 'models' | 'coherence' | 'report'
+type TabId = 'live' | 'models' | 'coherence' | 'report' | 'entropy' | 'embeddings'
 
 export default function App() {
   const [tab, setTab] = useState<TabId>('live')
@@ -17,12 +19,21 @@ export default function App() {
 
   const t = STRINGS[config.lang]
 
-  const TABS: { id: TabId; label: string }[] = [
+  const baseTabs: { id: TabId; label: string }[] = [
     { id: 'live', label: t.tabLive },
     { id: 'models', label: t.tabModels },
     { id: 'coherence', label: t.tabCoherence },
     { id: 'report', label: t.tabReport },
   ]
+
+  const entropicTabs: { id: TabId; label: string }[] = config.experimentType === 'entropic'
+    ? [
+        { id: 'entropy', label: t.tabEntropy },
+        { id: 'embeddings', label: t.tabEmbeddings },
+      ]
+    : []
+
+  const TABS = [...baseTabs, ...entropicTabs]
 
   const allInteractions = [
     ...state.generations.flatMap((g) => g.interactions),
@@ -86,6 +97,12 @@ export default function App() {
                   perturbations={state.perturbations}
                   config={config}
                 />
+              )}
+              {tab === 'entropy' && (
+                <EntropyTab entropicData={state.entropicData} />
+              )}
+              {tab === 'embeddings' && (
+                <EmbeddingsTab entropicData={state.entropicData} />
               )}
             </div>
           </main>

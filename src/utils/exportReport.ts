@@ -143,6 +143,29 @@ export function generateReportMarkdown(
 
   md += `\n**Total:** $${totalCost.toFixed(5)}\n\n`
 
+  // Entropic Metrics (if any)
+  const entropicMetrics = generations.filter((g) => g.entropicMetrics).map((g) => g.entropicMetrics!)
+  if (entropicMetrics.length > 0) {
+    md += `## Entropic Metrics\n\n`
+    md += `| Gen | Outcome Entropy | Avg Cosine Distance | WM Change Rate | WM Size A | WM Size B |\n`
+    md += `|-----|-----------------|---------------------|----------------|-----------|----------|\n`
+    entropicMetrics.forEach((e) => {
+      md += `| G${e.generation} | ${e.outcomeEntropy.toFixed(3)} | ${e.avgCosineDistance.toFixed(3)} | ${(e.wmChangeRate * 100).toFixed(1)}% | ${e.wmSizeA} | ${e.wmSizeB} |\n`
+    })
+    md += `\n`
+
+    // Round-level metrics
+    entropicMetrics.forEach((gen) => {
+      md += `### Generation ${gen.generation} - Embedding Details\n\n`
+      md += `| Round | Cosine from Prev | Divergence from WM | Surprise Proxy |\n`
+      md += `|-------|------------------|--------------------|----------------|\n`
+      gen.roundMetrics.forEach((r) => {
+        md += `| ${r.round} | ${r.cosineFromPrev.toFixed(3)} | ${r.divergenceFromWM.toFixed(3)} | ${r.surpriseProxy.toFixed(3)} |\n`
+      })
+      md += `\n`
+    })
+  }
+
   return md
 }
 

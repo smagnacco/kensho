@@ -10,17 +10,33 @@
 // Próximo paso: reemplazar information_gain por distancia
 // semántica via embeddings.
 
-import { ExperimentConfig, TensionRecord, GenerationResult, WorldModel, PerturbationRecord } from '../types'
+import { ExperimentConfig, TensionRecord, GenerationResult, WorldModel, PerturbationRecord, EntropicRoundMetrics, EntropicGenMetrics } from '../types'
 import { call } from '../api'
 import { genSys, critSys, distillSys, distillUser, perturbSys, perturbUser } from './prompts'
-import { safeWM, applyPerturbation, crossoverTensions } from './worldModel'
+import { safeWM, applyPerturbation, crossoverTensions, serializeWM } from './worldModel'
 import { Strings } from '../i18n'
+import { embed, cosineSim } from '../utils/embeddings'
 
 export function calcCoherence(interactions: TensionRecord[]): number {
   if (interactions.length === 0) return 0
   const avgGain = interactions.reduce((s, i) => s + i.informationGain, 0) / interactions.length
   const emergenceRate = interactions.filter((i) => i.outcome === 'evolved').length / interactions.length
   return Math.min(1, avgGain * 0.6 + emergenceRate * 0.4)
+}
+
+export function calcEntropicCoherence(outcomeEntropy: number, avgCosineDistance: number): number {
+  return Math.min(1, outcomeEntropy * 0.5 + avgCosineDistance * 0.5)
+}
+
+function entropyOfDistribution(counts: Record<string, number>): number {
+  const total = Object.values(counts).reduce((s, c) => s + c, 0)
+  if (total === 0) return 0
+  let h = 0
+  for (const count of Object.values(counts)) {
+    const p = count / total
+    if (p > 0) h -= p * Math.log2(p)
+  }
+  return h
 }
 
 export interface RunGenerationCallbacks {
@@ -77,6 +93,9 @@ export async function runGeneration(
   cb: RunGenerationCallbacks,
 ): Promise<GenerationResult> {
   const interactions: TensionRecord[] = []
+  const entropicRoundMetrics: EntropicRoundMetrics[] = []
+  let prevConceptEmbedding: number[] | null = null
+  const wmASerialized = serializeWM(worldModelA)
 
   for (let round = 1; round <= config.rounds; round++) {
     cb.onRoundStart(round, cb.t.phaseGenerating)
@@ -145,6 +164,32 @@ export async function runGeneration(
     interactions.push(record)
     cb.onInteraction(record)
     cb.onLog(cb.t.logInteraction(gen, round, concept, outcome.toUpperCase(), informationGain.toFixed(2)))
+
+    // Entropic metrics calculation
+    if (config.experimentType === 'entropic') {
+      try {
+        const conceptEmbedding = await embed(concept, config)
+        let cosineFromPrev = 0
+        if (prevConceptEmbedding) {
+          cosineFromPrev = cosineSim(conceptEmbedding, prevConceptEmbedding)
+        }
+        const wmEmbedding = await embed(wmASerialized, config)
+        const divergenceFromWM = cosineSim(conceptEmbedding, wmEmbedding)
+
+        entropicRoundMetrics.push({
+          round,
+          generation: gen,
+          conceptEmbedding,
+          cosineFromPrev,
+          divergenceFromWM,
+          surpriseProxy: 1 - cosineFromPrev,
+        })
+
+        prevConceptEmbedding = conceptEmbedding
+      } catch (err) {
+        cb.onLog(`Failed to compute embeddings for round ${round}: ${String(err)}`, 'warn')
+      }
+    }
   }
 
   cb.onLog(cb.t.logDistilling(gen))
@@ -176,7 +221,38 @@ export async function runGeneration(
 
   const newWMA = safeWM(distillA.parsed)
   const newWMB = safeWM(distillB.parsed)
-  const coherence = calcCoherence(interactions)
+
+  // Calculate coherence (different formula for entropic type)
+  let coherence = calcCoherence(interactions)
+  let entropicMetrics: EntropicGenMetrics | undefined
+
+  if (config.experimentType === 'entropic') {
+    const outcomeCounts = { accepted: 0, rejected: 0, evolved: 0 }
+    for (const i of interactions) {
+      outcomeCounts[i.outcome]++
+    }
+    const outcomeEntropy = entropyOfDistribution(outcomeCounts)
+    const avgCosineDistance = entropicRoundMetrics.length > 0
+      ? entropicRoundMetrics.reduce((s, m) => s + m.cosineFromPrev, 0) / entropicRoundMetrics.length
+      : 0
+    const newInsights = newWMA.confirmedInsights.length - worldModelA.confirmedInsights.length
+    const wmChangeRate = worldModelA.confirmedInsights.length > 0
+      ? newInsights / worldModelA.confirmedInsights.length
+      : 0
+
+    entropicMetrics = {
+      generation: gen,
+      outcomeEntropy,
+      avgCosineDistance,
+      wmChangeRate,
+      wmSizeA: newWMA.confirmedInsights.length + newWMA.tensionPatterns.length,
+      wmSizeB: newWMB.confirmedInsights.length + newWMB.tensionPatterns.length,
+      roundMetrics: entropicRoundMetrics,
+    }
+
+    coherence = calcEntropicCoherence(outcomeEntropy, avgCosineDistance)
+  }
+
   const distillCosts = { agentA: distillA.cost, agentB: distillB.cost }
   const interactionCost = interactions.reduce(
     (s, i) => s + i.stageCosts.generation + i.stageCosts.critique,
@@ -186,7 +262,7 @@ export async function runGeneration(
 
   cb.onLog(cb.t.logCoherence(gen, coherence.toFixed(3), totalCost.toFixed(4)))
 
-  return {
+  const result: GenerationResult = {
     generation: gen,
     interactions,
     worldModelA: newWMA,
@@ -195,4 +271,10 @@ export async function runGeneration(
     distillCosts,
     totalCost,
   }
+
+  if (entropicMetrics) {
+    result.entropicMetrics = entropicMetrics
+  }
+
+  return result
 }

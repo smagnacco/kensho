@@ -11,6 +11,9 @@ export interface AgentConfig {
   apiKey: string
 }
 
+export type ExperimentType = 'heuristic' | 'entropic'
+export type EmbeddingBackend = 'transformers' | 'openai-api'
+
 export interface ExperimentConfig {
   generations: number
   rounds: number
@@ -18,6 +21,9 @@ export interface ExperimentConfig {
   agentB: AgentConfig
   agentP: AgentConfig
   lang: 'en' | 'es'
+  experimentType: ExperimentType
+  embeddingBackend: EmbeddingBackend
+  disablePerturbation: boolean
 }
 
 export interface WorldModel {
@@ -58,6 +64,25 @@ export interface PerturbationRecord {
   cost: number
 }
 
+export interface EntropicRoundMetrics {
+  round: number
+  generation: number
+  conceptEmbedding: number[]
+  cosineFromPrev: number
+  divergenceFromWM: number
+  surpriseProxy: number
+}
+
+export interface EntropicGenMetrics {
+  generation: number
+  outcomeEntropy: number
+  avgCosineDistance: number
+  wmChangeRate: number
+  wmSizeA: number
+  wmSizeB: number
+  roundMetrics: EntropicRoundMetrics[]
+}
+
 export interface GenerationResult {
   generation: number
   interactions: TensionRecord[]
@@ -67,6 +92,7 @@ export interface GenerationResult {
   distillCosts: DistillCosts
   totalCost: number
   perturbation?: PerturbationRecord
+  entropicMetrics?: EntropicGenMetrics
 }
 
 export interface LogEntry {
@@ -89,4 +115,5 @@ export interface ExperimentState {
   perturbations: PerturbationRecord[]
   log: LogEntry[]
   error: string | null
+  entropicData: EntropicGenMetrics[]
 }

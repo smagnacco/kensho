@@ -210,6 +210,63 @@ export function ConfigPanel({ config, onChange, disabled }: Props) {
         disabled={disabled}
       />
 
+      <div className="space-y-3 pt-1">
+        <label className="block">
+          <span className="text-xs block mb-1" style={{ color: '#6b7280' }}>
+            {t.experimentType}
+          </span>
+          <div className="flex gap-2">
+            {(['heuristic', 'entropic'] as const).map((type) => (
+              <button
+                key={type}
+                onClick={() => onChange({ ...config, experimentType: type })}
+                disabled={disabled}
+                className="flex-1 text-xs py-1.5 rounded font-semibold transition-all"
+                style={{
+                  background: config.experimentType === type ? '#00e5cc' : '#09090f',
+                  color: config.experimentType === type ? '#0e0e1c' : '#9ca3af',
+                  border: `1px solid ${config.experimentType === type ? '#00e5cc' : '#1a1a2e'}`,
+                  opacity: disabled ? 0.5 : 1,
+                }}
+              >
+                {type === 'heuristic' ? t.heuristic : t.entropic}
+              </button>
+            ))}
+          </div>
+        </label>
+
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={config.disablePerturbation}
+            disabled={disabled}
+            onChange={(e) => onChange({ ...config, disablePerturbation: e.target.checked })}
+            className="rounded"
+          />
+          <span className="text-xs" style={{ color: '#9ca3af' }}>
+            {t.disablePerturbation}
+          </span>
+        </label>
+
+        {config.experimentType === 'entropic' && (
+          <label className="block">
+            <span className="text-xs block mb-1" style={{ color: '#6b7280' }}>
+              {t.embeddingBackend}
+            </span>
+            <select
+              value={config.embeddingBackend}
+              disabled={disabled}
+              onChange={(e) => onChange({ ...config, embeddingBackend: e.target.value as 'transformers' | 'openai-api' })}
+              className="w-full rounded px-2 py-1.5 text-sm font-mono"
+              style={{ background: '#09090f', color: '#e5e7eb', border: '1px solid #1a1a2e' }}
+            >
+              <option value="transformers">{t.transformersOffline}</option>
+              <option value="openai-api">{t.openaiApi}</option>
+            </select>
+          </label>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 gap-4 pt-1">
         <AgentConfig
           label={t.agentA}
