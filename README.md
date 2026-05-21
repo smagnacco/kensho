@@ -38,9 +38,11 @@ This cycle repeats for each configured generation.
 
 ---
 
-## Coherence
+## Experiment Types
 
-The experiment measures a **coherence score** per generation:
+### Heuristic (default)
+
+Measures **coherence** as information gain + emergence rate:
 
 ```
 coherence = avgInformationGain × 0.6 + emergenceRate × 0.4
@@ -49,6 +51,21 @@ coherence = avgInformationGain × 0.6 + emergenceRate × 0.4
 where `emergenceRate` is the fraction of rounds that produced an `evolved` outcome. A generation where everything gets accepted or rejected without mutation scores low. A generation with sustained productive tension scores high.
 
 The working hypothesis is that without perturbation, coherence collapses after generation 2-3 as the agents converge on shared priors. The Perturber is the intervention against that collapse.
+
+### Entropic (experimental)
+
+Measures **epistemic entropy** via embedding-based metrics. Each concept is embedded and compared against previous concepts and the current world model to detect surprise and divergence. Per-generation metrics include:
+
+- **Outcome Entropy** — Shannon entropy of the accepted/rejected/evolved distribution
+- **Cosine Distance** — average semantic drift between consecutive concepts
+- **WM Change Rate** — fraction of new insights added to the world model
+- **Surprise Proxy** — 1 minus cosine similarity (novelty detector)
+
+Entropic coherence combines outcome entropy and cosine distance to identify the peak chaos moment before insight collapse. Useful for falsifiability: run with/without the Perturber and compare entropy curves.
+
+**Embedding backends:**
+- `transformers.js (offline)` — MiniLM model runs in browser (~40MB, first load only)
+- `OpenAI API` — uses text-embedding-3-small (recommended for production)
 
 ---
 
@@ -105,6 +122,10 @@ Language (EN/ES) controls both the UI labels and the language in which agents th
 
 **Reporte / Report** — a full experiment summary: agent configurations, coherence evolution, all emerged and accepted concepts, both final world models, all perturbations, and a cost breakdown table down to the individual API call.
 
+**Entropía / Entropy** *(entropic mode only)* — outcome entropy and cosine distance bars per generation, plus a table of world model change rates.
+
+**Embeddings** *(entropic mode only)* — timeline of surprise proxy, divergence from world model per round, and evolution of world model sizes across generations.
+
 ---
 
 ## Technical notes
@@ -113,6 +134,31 @@ Language (EN/ES) controls both the UI labels and the language in which agents th
 - Anthropic calls are proxied through the Vite dev server to bypass the browser CORS restriction on `api.anthropic.com`. OpenAI and Grok support browser requests natively.
 - All JSON responses are parsed with fence-stripping and regex fallback — agent outputs are treated as unreliable and handled defensively.
 - World model distillation uses 1800 max tokens to avoid truncation mid-JSON.
+- Entropic mode offers two embedding backends:
+  - **transformers.js**: client-side, no API keys needed, ~40MB model downloaded on first use
+  - **OpenAI API**: recommended for production (see Security note below)
+
+---
+
+## Security & Embedding Backends
+
+### Recommended: OpenAI API Backend
+
+For production use, prefer the **OpenAI API** embedding backend:
+- ✅ No local model loading
+- ✅ No transitive dependencies with known CVEs
+- ✅ Minimal cost (~$0.0001 per 1M tokens)
+- ✅ No client-side model download
+
+### Alternative: transformers.js (Offline)
+
+The `transformers.js` backend is **safe for development and testing**:
+- Models are served by Hugging Face (trusted CDN)
+- All transfers are HTTPS
+- No server-side exposure
+- Known transitive vulnerabilities in protobufjs (onnxruntime-web) have **low practical risk** due to trusted model sources
+
+See [SECURITY.md](./SECURITY.md) for full vulnerability analysis.
 
 ---
 
@@ -121,3 +167,4 @@ Language (EN/ES) controls both the UI labels and the language in which agents th
 - Vite + React + TypeScript
 - Tailwind CSS
 - No UI component libraries
+- (Optional) `@xenova/transformers` for offline embeddings
