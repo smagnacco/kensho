@@ -1,6 +1,6 @@
 export type Provider = 'anthropic' | 'openai' | 'grok'
 
-export type AnthropicModel = 'claude-opus-4-5' | 'claude-sonnet-4-5' | 'claude-haiku-4-5'
+export type AnthropicModel = 'claude-opus-4-7' | 'claude-opus-4-7-adaptive' | 'claude-sonnet-4-6' | 'claude-sonnet-4-6-adaptive' | 'claude-opus-4-5' | 'claude-sonnet-4-5' | 'claude-haiku-4-5'
 export type OpenAIModel = 'gpt-4o' | 'gpt-4o-mini' | 'o3-mini'
 export type GrokModel = 'grok-3' | 'grok-3-mini' | 'grok-2-vision'
 export type ModelId = AnthropicModel | OpenAIModel | GrokModel

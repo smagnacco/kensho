@@ -14,7 +14,7 @@ dist/
 .idea/
 *.swp
 *.swo
-
+.claude/skills/karpathy-guidelines/SKILL.md
 # OS
 .DS_Store
 Thumbs.db

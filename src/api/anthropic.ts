@@ -1,15 +1,19 @@
 import { ModelId } from '../types'
 
 const TOKEN_COSTS: Record<string, { input: number; output: number }> = {
-  'claude-opus-4-5':   { input: 0.000015,  output: 0.000075 },
-  'claude-sonnet-4-5': { input: 0.000003,  output: 0.000015 },
-  'claude-haiku-4-5':  { input: 0.0000008, output: 0.000004 },
-  'gpt-4o':            { input: 0.0000025,  output: 0.00001 },
-  'gpt-4o-mini':       { input: 0.00000015, output: 0.0000006 },
-  'o3-mini':           { input: 0.0000011,  output: 0.0000044 },
-  'grok-3':            { input: 0.000003,   output: 0.000015 },
-  'grok-3-mini':       { input: 0.0000003,  output: 0.0000005 },
-  'grok-2-vision':     { input: 0.000002,   output: 0.000010 },
+  'claude-opus-4-7':       { input: 0.000003,  output: 0.000015 },
+  'claude-opus-4-7-adaptive': { input: 0.000006, output: 0.000030 },
+  'claude-sonnet-4-6':     { input: 0.000003,  output: 0.000015 },
+  'claude-sonnet-4-6-adaptive': { input: 0.000006, output: 0.000030 },
+  'claude-opus-4-5':       { input: 0.000015,  output: 0.000075 },
+  'claude-sonnet-4-5':     { input: 0.000003,  output: 0.000015 },
+  'claude-haiku-4-5':      { input: 0.0000008, output: 0.000004 },
+  'gpt-4o':                { input: 0.0000025, output: 0.00001 },
+  'gpt-4o-mini':           { input: 0.00000015, output: 0.0000006 },
+  'o3-mini':               { input: 0.0000011,  output: 0.0000044 },
+  'grok-3':                { input: 0.000003,   output: 0.000015 },
+  'grok-3-mini':           { input: 0.0000003,  output: 0.0000005 },
+  'grok-2-vision':         { input: 0.000002,   output: 0.000010 },
 }
 
 export function calcCost(model: ModelId, inputTokens: number, outputTokens: number): number {
