@@ -12,7 +12,6 @@ export interface AgentConfig {
 }
 
 export type ExperimentType = 'heuristic' | 'entropic'
-export type EmbeddingBackend = 'transformers' | 'openai-api'
 
 export interface ExperimentConfig {
   generations: number
@@ -22,7 +21,6 @@ export interface ExperimentConfig {
   agentP: AgentConfig
   lang: 'en' | 'es'
   experimentType: ExperimentType
-  embeddingBackend: EmbeddingBackend
   disablePerturbation: boolean
 }
 

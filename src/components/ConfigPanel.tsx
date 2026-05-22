@@ -248,23 +248,6 @@ export function ConfigPanel({ config, onChange, disabled }: Props) {
           </span>
         </label>
 
-        {config.experimentType === 'entropic' && (
-          <label className="block">
-            <span className="text-xs block mb-1" style={{ color: '#6b7280' }}>
-              {t.embeddingBackend}
-            </span>
-            <select
-              value={config.embeddingBackend}
-              disabled={disabled}
-              onChange={(e) => onChange({ ...config, embeddingBackend: e.target.value as 'transformers' | 'openai-api' })}
-              className="w-full rounded px-2 py-1.5 text-sm font-mono"
-              style={{ background: '#09090f', color: '#e5e7eb', border: '1px solid #1a1a2e' }}
-            >
-              <option value="transformers">{t.transformersOffline}</option>
-              <option value="openai-api">{t.openaiApi}</option>
-            </select>
-          </label>
-        )}
       </div>
 
       <div className="grid grid-cols-1 gap-4 pt-1">

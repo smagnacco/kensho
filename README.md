@@ -63,9 +63,7 @@ Measures **epistemic entropy** via embedding-based metrics. Each concept is embe
 
 Entropic coherence combines outcome entropy and cosine distance to identify the peak chaos moment before insight collapse. Useful for falsifiability: run with/without the Perturber and compare entropy curves.
 
-**Embedding backends:**
-- `transformers.js (offline)` — MiniLM model runs in browser (~40MB, first load only)
-- `OpenAI API` — uses text-embedding-3-small (recommended for production)
+Entropic mode requires **OpenAI API embeddings**: at least one agent must use OpenAI provider with a valid API key. Embeddings use `text-embedding-3-small` (~$0.0001 per 1M tokens).
 
 ---
 
@@ -134,31 +132,7 @@ Language (EN/ES) controls both the UI labels and the language in which agents th
 - Anthropic calls are proxied through the Vite dev server to bypass the browser CORS restriction on `api.anthropic.com`. OpenAI and Grok support browser requests natively.
 - All JSON responses are parsed with fence-stripping and regex fallback — agent outputs are treated as unreliable and handled defensively.
 - World model distillation uses 1800 max tokens to avoid truncation mid-JSON.
-- Entropic mode offers two embedding backends:
-  - **transformers.js**: client-side, no API keys needed, ~40MB model downloaded on first use
-  - **OpenAI API**: recommended for production (see Security note below)
-
----
-
-## Security & Embedding Backends
-
-### Recommended: OpenAI API Backend
-
-For production use, prefer the **OpenAI API** embedding backend:
-- ✅ No local model loading
-- ✅ No transitive dependencies with known CVEs
-- ✅ Minimal cost (~$0.0001 per 1M tokens)
-- ✅ No client-side model download
-
-### Alternative: transformers.js (Offline)
-
-The `transformers.js` backend is **safe for development and testing**:
-- Models are served by Hugging Face (trusted CDN)
-- All transfers are HTTPS
-- No server-side exposure
-- Known transitive vulnerabilities in protobufjs (onnxruntime-web) have **low practical risk** due to trusted model sources
-
-See [SECURITY.md](./SECURITY.md) for full vulnerability analysis.
+- Entropic mode uses **OpenAI API embeddings** (text-embedding-3-small, ~$0.0001 per 1M tokens). At least one agent must be configured with OpenAI provider and API key.
 
 ---
 

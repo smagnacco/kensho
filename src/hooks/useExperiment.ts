@@ -9,7 +9,6 @@ const defaultConfig: ExperimentConfig = {
   rounds: 3,
   lang: 'es',
   experimentType: 'heuristic',
-  embeddingBackend: 'transformers',
   disablePerturbation: false,
   agentA: {
     provider: 'anthropic',

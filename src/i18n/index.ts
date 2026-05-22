@@ -38,9 +38,6 @@ export interface Strings {
   experimentType: string
   heuristic: string
   entropic: string
-  embeddingBackend: string
-  transformersOffline: string
-  openaiApi: string
   disablePerturbation: string
 
   // Tabs
@@ -164,9 +161,6 @@ const en: Strings = {
   experimentType: 'Experiment Type',
   heuristic: 'Heuristic',
   entropic: 'Entropic',
-  embeddingBackend: 'Embedding Backend',
-  transformersOffline: 'transformers.js (offline)',
-  openaiApi: 'OpenAI API',
   disablePerturbation: 'Disable Perturbation',
 
   tabLive: 'Live',
@@ -285,9 +279,6 @@ const es: Strings = {
   experimentType: 'Tipo de Experimento',
   heuristic: 'Heurístico',
   entropic: 'Entropico',
-  embeddingBackend: 'Motor de Embeddings',
-  transformersOffline: 'transformers.js (offline)',
-  openaiApi: 'OpenAI API',
   disablePerturbation: 'Sin Perturbación',
 
   tabLive: 'En vivo',
