@@ -14,6 +14,9 @@ const TOKEN_COSTS: Record<string, { input: number; output: number }> = {
   'grok-3':                { input: 0.000003,   output: 0.000015 },
   'grok-3-mini':           { input: 0.0000003,  output: 0.0000005 },
   'grok-2-vision':         { input: 0.000002,   output: 0.000010 },
+  'gemini-2-flash':        { input: 0.0000001, output: 0.0000004 },
+  'gemini-1-5-pro':        { input: 0.00000125, output: 0.000005 },
+  'gemini-1-5-flash':      { input: 0.0000000375, output: 0.00000015 },
 }
 
 export function calcCost(model: ModelId, inputTokens: number, outputTokens: number): number {
@@ -27,10 +30,9 @@ export interface ApiResult {
 }
 
 export function parseJson(raw: string): unknown {
-  // Strip all markdown code fences anywhere in the string
-  const stripped = raw
-    .replace(/```json\s*/gi, '')
-    .replace(/```\s*/g, '')
+  // Strip all markdown code fences (opening and closing) with flexible whitespace
+  let stripped = raw
+    .replace(/```(?:json)?\s*/gi, '')
     .trim()
 
   // Try direct parse first

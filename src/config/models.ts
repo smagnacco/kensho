@@ -25,6 +25,11 @@ export const MODEL_CATALOG: Record<Provider, ModelEntry[]> = {
     { id: 'grok-3-mini', label: 'Grok 3 Mini' },
     { id: 'grok-2-vision', label: 'Grok 2 Vision' },
   ],
+  gemini: [
+    { id: 'gemini-2-flash', label: 'Gemini 2.0 Flash' },
+    { id: 'gemini-1-5-pro', label: 'Gemini 1.5 Pro' },
+    { id: 'gemini-1-5-flash', label: 'Gemini 1.5 Flash' },
+  ],
 }
 
 export function defaultModelForProvider(provider: Provider): ModelId {
@@ -34,5 +39,6 @@ export function defaultModelForProvider(provider: Provider): ModelId {
 export function apiKeyEnvVar(provider: Provider): string {
   if (provider === 'anthropic') return import.meta.env.VITE_ANTHROPIC_API_KEY ?? ''
   if (provider === 'openai') return import.meta.env.VITE_OPENAI_API_KEY ?? ''
-  return import.meta.env.VITE_GROK_API_KEY ?? ''
+  if (provider === 'grok') return import.meta.env.VITE_GROK_API_KEY ?? ''
+  return import.meta.env.VITE_GEMINI_API_KEY ?? ''
 }
